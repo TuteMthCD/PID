@@ -23,8 +23,8 @@ byte flechaChar[] = {
 
 void lcd_init(void){
         lcd.begin(16,2);
-        lcd.noCursor()
-        lcd.noBlink()
+        lcd.noCursor();
+        lcd.noBlink();
         //lcd.noAutoscroll();
         //lcd.leftToRight();
         lcd.clear();
@@ -34,5 +34,5 @@ void lcd_init(void){
 }
 
 void lcd_showRPM(double rmp){
-  
+
 }

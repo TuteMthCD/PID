@@ -3,9 +3,9 @@
 class SpinWheel {
 private:
 public:
-  static double RPM;
+static double RPM;
 
-  void begin(unsigned char);
+void begin(unsigned char);
 
-  static void SpinWheel_Interrupt(void);
+static void SpinWheel_Interrupt(void);
 };

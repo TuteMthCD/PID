@@ -1,5 +1,6 @@
 #include "SpinWheel.h"
 #include "ZeroCroissing.h"
+#include "Screen.h"
 #include <PID_v1.h>
 
 #define PD2 2   //pata en arduino llamada "2"
@@ -12,31 +13,39 @@ ZeroCroissing Detector;
 
 //varibles de para el uso de la libreria PID
 double Setpoint, Input, Output;
-double Kp=2, Ki=0.0125, Kd=10;
+double Kp=1, Ki=0.0015, Kd=3;
 
-PID PID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+
+PID PID(&Input, &Output, &Setpoint, Kp, Ki, Kd, REVERSE);
 
 void setup(){
         //incio de objetos/clases
-        Serial.begin(115200);
+        //Serial.begin(115200);
         Encoder.begin(PD2);
         Detector.begin(PD3,PD5);
 
+        viaco_vars(&Input,&(Encoder.RPM), &Setpoint, &Kp, &Ki, &Kd);
+        init_viaco();
+
         //configuraciones del PID
-        PID.SetSampleTime(250);     //calcula cada 250ms
-        PID.SetOutputLimits(0,2499); //valores de 0 a 2500 min and max , por 25 ms cada ciclo
-        PID.SetMode(MANUAL);        //significa que yo llamo a que calcule, por lo tanto SetSampleTime queda "inhabilitado"
+        PID.SetSampleTime(20);     //calcula cada 250ms
+        PID.SetOutputLimits(0,11000); //valores de 0 a ___ min and max , por 10 ms cada ciclo
+        PID.SetMode(AUTOMATIC);    //significa que yo llamo a que calcule, por lo tanto SetSampleTime queda "inhabilitado"
+
+        Detector.pinUP=10;
+        Setpoint=1000;
+
 }
 
 void loop() {
-        Setpoint=100;
-        Input=Encoder.RPM;
-
-        if(Detector.Change) {
-                PID.Compute();
-                Detector.Change=0;
+        if(PID.Compute()) {
+                if(Detector.Change) {
+                        Input=Encoder.RPM;
+                        if(Output) {
+                                Detector.pinUP=Output;
+                        }
+                        PID.SetTunings(Kp, Ki, Kd);
+                }
         }
-
-        Detector.pinUP=Output;
-        Detector.loop();
+        viaco_loop();
 }

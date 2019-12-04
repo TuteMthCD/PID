@@ -1,16 +1,18 @@
 #include "SpinWheel.h"
 
 void SpinWheel::begin(unsigned char inputPin){
+        pinMode(13,OUTPUT);
         pinMode(inputPin, INPUT);
-        attachInterrupt(digitalPinToInterrupt(inputPin), SpinWheel_Interrupt,LOW);
+        attachInterrupt(digitalPinToInterrupt(inputPin), SpinWheel_Interrupt,FALLING);
         //Serial.print("Iniciada interrupcion de la pata " + inputPin);
-        //Serial.print("Cruce por 0");
 }
 
 static double SpinWheel::RPM=0;
 
 void SpinWheel::SpinWheel_Interrupt(void){
-        static unsigned long before=0;
-        RPM =(1/(micros()-before)*12)*60; //rpm Interrupcion
-        before = micros();
+        static unsigned long before;
+        unsigned long time=micros();
+        RPM=2500000/((time-before)); //rpm Interrupcion
+        //RPM=time-before;
+        before = time;
 }

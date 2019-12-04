@@ -1,0 +1,25 @@
+void init_interrupts (void){
+        unsigned char sreg=SREG; //guardo byte de interrupciones globales
+        _CLI();//apago interrupciones
+        //noInterrupts();
+        TCCR1A = 0; // El registro de control A queda todo en 0
+        TCCR1B = 0; // activo el modo CTC en Timer1
+        TCCR1B |= (1 << WGM12);
+
+        TCCR1B |= (0 << CS12) | (1 << CS11) | (0 << CS10);// pre-esclaer en 8 (aumenta cada 500nS)
+
+        TCNT1 = 0;// Incio el contador en 0
+        OCR1A = 5000;// El registro comparador 50K (este debo modificar para lanzar la interrupcion "salida PID")
+
+        TIMSK1 |= (1 << OCIE1A);// Inicializamos el comparador para el registro A
+
+        SREG = sreg; //vuelvo a prender las interrupciones
+
+        //interrupts();// Activamos interrupciones nuevamente
+}
+
+ISR(TIMER1_COMPA_vect) {
+//PRR|= (0 << PRTIM1);
+        TCNT1=0;
+        TCCR1B |= (0 << CS12) | (0 << CS11) | (0 << CS10); //no prescaler (apagado)
+}
